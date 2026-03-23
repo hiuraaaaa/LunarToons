@@ -8,8 +8,8 @@ const BASE = 'https://lc5.cosmicscans.asia';
 const SCRAPER_KEY = process.env.SCRAPER_API_KEY;
 
 async function fetchPage(url) {
-    const scraperUrl = `http://api.scraperapi.com?api_key=${SCRAPER_KEY}&url=${encodeURIComponent(url)}&render=true`;
-    const res = await axios.get(scraperUrl, { timeout: 30000 });
+    const scraperUrl = `http://api.scraperapi.com?api_key=${SCRAPER_KEY}&url=${encodeURIComponent(url)}`;
+    const res = await axios.get(scraperUrl, { timeout: 60000 });
     return cheerio.load(res.data);
 }
 function parseBsx($, container) {
