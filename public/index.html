@@ -508,10 +508,14 @@
       renderSections(allSections);
     }
 
-    // ── LOAD HOME ──
+        // ── LOAD HOME ──
     async function loadHome() {
       const wrap = document.getElementById('sections-wrap');
-      wrap.innerHTML = `<div class="section"><div class="section-header"><div class="section-title">Terbaru</div></div><div class="manga-grid">${renderSkeleton(6)}</div></div>`;
+      wrap.innerHTML = ['Populer Today','Project Update','Latest Update'].map(s => `
+        <div class="section">
+          <div class="section-header"><div class="section-title">${s}</div></div>
+          <div class="manga-grid">${renderSkeleton(6)}</div>
+        </div>`).join('');
 
       try {
         const res  = await fetch('/api/manga/home');
@@ -519,9 +523,11 @@
         if (!data.status) throw new Error(data.error || 'Gagal');
 
         const sections = data.result || [];
-        // Ambil items dari section pertama untuk hero
-        const heroSource = sections.flatMap(s => s.items).filter(i => i.cover).slice(0, 8);
-        renderHero(heroSource);
+
+        // Hero dari section pertama (Popular Today)
+        const popularSection = sections.find(s => s.section.toLowerCase().includes('popular')) || sections[0];
+        if (popularSection) renderHero(popularSection.items.filter(i => i.cover));
+
         renderSections(sections);
       } catch(e) {
         wrap.innerHTML = `<div class="section"><div class="manga-grid"><div class="empty-state">
@@ -533,6 +539,33 @@
         showToast('Gagal memuat: ' + e.message);
       }
     }
+
+    // ── SECTIONS ──
+    function renderSections(sections) {
+      allSections = sections;
+      const wrap = document.getElementById('sections-wrap');
+      if (!sections.length) {
+        wrap.innerHTML = '<div style="padding:40px 18px;text-align:center;color:var(--text3);font-size:13px">Tidak ada data</div>';
+        return;
+      }
+      wrap.innerHTML = sections.map(sec => {
+        const items = activeFilter === 'all'
+          ? sec.items
+          : sec.items.filter(i => (i.type || '').toLowerCase().includes(activeFilter));
+        if (!items.length) return '';
+        const viewAll = sec.view_all
+          ? `<a href="/browse" class="section-more">Lihat Semua</a>`
+          : '';
+        return `<div class="section">
+          <div class="section-header">
+            <div class="section-title">${escHtml(sec.section)}</div>
+            ${viewAll}
+          </div>
+          <div class="manga-grid">${items.map(renderCard).join('')}</div>
+        </div>`;
+      }).join('');
+    }
+
 
     // ── SEARCH ──
     const searchInput = document.getElementById('search-input');
