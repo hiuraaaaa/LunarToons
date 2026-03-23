@@ -4,19 +4,13 @@ const axios   = require('axios');
 const cheerio = require('cheerio');
 const router  = express.Router();
 
-const BASE = 'https://lc5.cosmicscans.asia';
+const SCRAPER_KEY = process.env.SCRAPER_API_KEY;
 
 async function fetchPage(url) {
-    const res = await axios.get(url, {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Referer': BASE + '/'
-        },
-        timeout: 15000
-    });
+    const scraperUrl = `http://api.scraperapi.com?api_key=${SCRAPER_KEY}&url=${encodeURIComponent(url)}&render=true`;
+    const res = await axios.get(scraperUrl, { timeout: 30000 });
     return cheerio.load(res.data);
 }
-
 function parseBsx($, container) {
     const items = [];
     $(container).find('.bsx').each((_, el) => {
