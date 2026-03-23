@@ -4,6 +4,7 @@ const axios   = require('axios');
 const cheerio = require('cheerio');
 const router  = express.Router();
 
+const BASE = 'https://lc5.cosmicscans.asia';
 const SCRAPER_KEY = process.env.SCRAPER_API_KEY;
 
 async function fetchPage(url) {
