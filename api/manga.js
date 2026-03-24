@@ -21,7 +21,7 @@ function parseBsxEl($, el) {
     const type    = $(el).find('[class^="type"]').text().trim() || null;
     const status  = $(el).find('[class^="status"]').text().trim() || null;
     const chapter = $(el).find('.epxs').text().trim() || null;
-    return (url && title) ? { title, url, cover, type, status, chapter } : null;
+    return (url && title) ? { title, url, cover, type, status, chapter, updated_at: null } : null;
 }
 
 function parseBsx($, selector) {
@@ -51,6 +51,7 @@ router.get('/debug', async (req, res) => {
             debug.push({
                 title: $(box).find('.releases h3').first().text().trim(),
                 bsx_count: $(box).find('.bsx').length,
+                uta_count: $(box).find('.utao .uta').length,
                 html_snippet: $(box).html()?.substring(0, 300)
             });
         });
@@ -58,7 +59,6 @@ router.get('/debug', async (req, res) => {
     } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── HOME ──
 // ── HOME ──
 router.get('/home', async (req, res) => {
     try {
@@ -78,12 +78,14 @@ router.get('/home', async (req, res) => {
 
             // Project Update & Latest Update pakai .utao .uta
             $(box).find('.utao .uta').each((_, el) => {
-                const a       = $(el).find('.imgu a').first();
-                const url     = a.attr('href') || null;
-                const title   = $(el).find('.luf a').first().text().trim() || a.attr('title') || null;
-                const cover   = $(el).find('img').first().attr('src') || null;
-                const chapter = $(el).find('.luf ul li a').first().text().trim() || null;
-                if (url && title) items.push({ title, url, cover, type: null, status: null, chapter });
+                const a          = $(el).find('.imgu a').first();
+                const url        = a.attr('href') || null;
+                const title      = $(el).find('.luf a').first().text().trim() || a.attr('title') || null;
+                const cover      = $(el).find('img').first().attr('src') || null;
+                const chapterEl  = $(el).find('.luf ul li').first();
+                const chapter    = chapterEl.find('a').text().trim() || null;
+                const updated_at = chapterEl.find('span').text().trim() || null;
+                if (url && title) items.push({ title, url, cover, type: null, status: null, chapter, updated_at });
             });
 
             if (items.length) sections.push({ section: title, view_all, items });
@@ -91,6 +93,7 @@ router.get('/home', async (req, res) => {
         res.json({ status: true, result: sections });
     } catch(e) { res.status(500).json({ status: false, error: e.message }); }
 });
+
 // ── LIST ──
 router.get('/list', async (req, res) => {
     try {
