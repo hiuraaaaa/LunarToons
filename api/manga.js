@@ -59,6 +59,7 @@ router.get('/debug', async (req, res) => {
 });
 
 // ── HOME ──
+// ── HOME ──
 router.get('/home', async (req, res) => {
     try {
         const $ = await fetchPage(BASE + '/');
@@ -68,16 +69,28 @@ router.get('/home', async (req, res) => {
             if (!title) return;
             const view_all = $(box).find('.releases .vl').attr('href') || null;
             const items    = [];
+
+            // Popular Today pakai .bsx
             $(box).find('.bsx').each((_, el) => {
                 const item = parseBsxEl($, el);
                 if (item) items.push(item);
             });
+
+            // Project Update & Latest Update pakai .utao .uta
+            $(box).find('.utao .uta').each((_, el) => {
+                const a       = $(el).find('.imgu a').first();
+                const url     = a.attr('href') || null;
+                const title   = $(el).find('.luf a').first().text().trim() || a.attr('title') || null;
+                const cover   = $(el).find('img').first().attr('src') || null;
+                const chapter = $(el).find('.luf ul li a').first().text().trim() || null;
+                if (url && title) items.push({ title, url, cover, type: null, status: null, chapter });
+            });
+
             if (items.length) sections.push({ section: title, view_all, items });
         });
         res.json({ status: true, result: sections });
     } catch(e) { res.status(500).json({ status: false, error: e.message }); }
 });
-
 // ── LIST ──
 router.get('/list', async (req, res) => {
     try {
