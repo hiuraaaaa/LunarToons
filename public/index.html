@@ -22,17 +22,13 @@
       --border2: rgba(255,255,255,0.1);
       --nav-h:   60px;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      max-width: 480px;
-      margin: 0 auto;
-      overflow-x: hidden;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; max-width: 480px;
+      margin: 0 auto; overflow-x: hidden;
       padding-bottom: calc(var(--nav-h) + 20px);
     }
     a { text-decoration: none; color: inherit; }
@@ -45,22 +41,19 @@
       position: sticky; top: 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 18px; height: 56px;
-      background: rgba(10,10,15,0.9);
-      backdrop-filter: blur(20px);
+      background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
     }
     .logo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px; letter-spacing: 1px;
-      color: var(--text);
+      font-size: 26px; letter-spacing: 1px; color: var(--text);
       display: flex; align-items: center; gap: 6px;
     }
     .logo-dot { color: var(--accent); }
     .logo-sub {
       font-family: 'Outfit', sans-serif;
       font-size: 8px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--text3);
-      margin-top: 2px;
+      text-transform: uppercase; color: var(--text3); margin-top: 2px;
     }
     .topnav-right { display: flex; gap: 8px; }
     .icon-btn {
@@ -79,8 +72,7 @@
       position: absolute; inset: 0;
       background-size: cover; background-position: center;
       filter: blur(20px) brightness(0.25);
-      transform: scale(1.1);
-      transition: background-image 0.5s ease;
+      transform: scale(1.1); transition: background-image 0.5s ease;
     }
     .hero-banner-overlay {
       position: absolute; inset: 0;
@@ -125,8 +117,7 @@
     .hero-dot.active { background: var(--accent); width: 18px; border-radius: 3px; }
 
     .search-section {
-      padding: 14px 18px;
-      background: var(--bg2);
+      padding: 14px 18px; background: var(--bg2);
       border-bottom: 1px solid var(--border);
     }
     .search-bar {
@@ -138,8 +129,7 @@
     .search-bar svg { color: var(--text3); flex-shrink: 0; }
     .search-bar input {
       flex: 1; background: none; border: none; outline: none;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
     }
     .search-bar input::placeholder { color: var(--text3); }
 
@@ -167,13 +157,10 @@
       font-size: 20px; letter-spacing: 0.5px; color: var(--text);
       display: flex; align-items: center; gap: 10px;
     }
-    .section-title::before {
-      content: ''; width: 4px; height: 18px; background: var(--accent);
-    }
+    .section-title::before { content: ''; width: 4px; height: 18px; background: var(--accent); }
     .section-more {
       font-family: 'Outfit', sans-serif;
-      font-size: 11px; font-weight: 700; color: var(--accent);
-      letter-spacing: 0.3px;
+      font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.3px;
     }
 
     .manga-grid {
@@ -234,8 +221,7 @@
     .bottom-nav {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px; height: var(--nav-h);
-      background: rgba(10,10,15,0.95);
-      backdrop-filter: blur(20px);
+      background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
       border-top: 1px solid var(--border2);
       display: flex; align-items: stretch; z-index: 100;
     }
@@ -243,8 +229,7 @@
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 4px;
       color: var(--text3); cursor: pointer; transition: color 0.2s;
-      padding: 8px 0; -webkit-tap-highlight-color: transparent;
-      position: relative;
+      padding: 8px 0; -webkit-tap-highlight-color: transparent; position: relative;
     }
     .nav-item::after {
       content: ''; position: absolute; top: 0; left: 20%; right: 20%;
@@ -269,11 +254,8 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
   </style>
 </head>
 <body>
@@ -292,7 +274,7 @@
     </div>
   </nav>
 
-  <div class="hero-banner" id="hero-banner">
+  <div class="hero-banner">
     <div class="hero-banner-bg" id="hero-bg"></div>
     <div class="hero-banner-overlay"></div>
     <div class="hero-dots" id="hero-dots"></div>
@@ -379,6 +361,7 @@
     function renderCard(item) {
       const cover = item.cover || 'https://placehold.co/200x300/111118/44445a?text=No+Cover';
       const url   = encodeURIComponent(item.url || '');
+      const label = item.updated_at || item.chapter || '';
       return `<div class="manga-card" onclick="window.location.href='/detail?url=${url}'">
         <div class="manga-poster">
           <img src="${escHtml(cover)}" alt="${escHtml(item.title)}" loading="lazy"
@@ -387,7 +370,7 @@
           ${getTypeBadge(item.type)}
           <div class="manga-info">
             <div class="manga-title">${escHtml(item.title)}</div>
-            ${item.chapter ? `<div class="manga-chapter">${escHtml(item.chapter)}</div>` : ''}
+            ${label ? `<div class="manga-chapter">${escHtml(label)}</div>` : ''}
           </div>
         </div>
       </div>`;
@@ -396,24 +379,18 @@
     // ── HERO ──
     let heroItems = [], heroIdx = 0, heroTimer = null;
 
-    function renderCard(item) {
-  const cover = item.cover || 'https://placehold.co/200x300/111118/44445a?text=No+Cover';
-  const url   = encodeURIComponent(item.url || '');
-  const label = item.updated_at || item.chapter || '';
-  return `<div class="manga-card" onclick="window.location.href='/detail?url=${url}'">
-    <div class="manga-poster">
-      <img src="${escHtml(cover)}" alt="${escHtml(item.title)}" loading="lazy"
-        onerror="this.src='https://placehold.co/200x300/111118/44445a?text=No+Cover'">
-      <div class="manga-poster-overlay"></div>
-      ${getTypeBadge(item.type)}
-      <div class="manga-info">
-        <div class="manga-title">${escHtml(item.title)}</div>
-        ${label ? `<div class="manga-chapter">${escHtml(label)}</div>` : ''}
-      </div>
-    </div>
-  </div>`;
+    function renderHero(items) {
+      heroItems = items.slice(0, 5);
+      if (!heroItems.length) return;
+      const dots = document.getElementById('hero-dots');
+      dots.innerHTML = heroItems.map((_, i) =>
+        `<div class="hero-dot ${i===0?'active':''}" onclick="goHero(${i})"></div>`
+      ).join('');
+      goHero(0);
+      if (heroTimer) clearInterval(heroTimer);
+      heroTimer = setInterval(() => goHero((heroIdx + 1) % heroItems.length), 4000);
     }
-    
+
     function goHero(idx) {
       heroIdx = idx;
       const item    = heroItems[idx];
@@ -453,7 +430,7 @@
           : sec.items.filter(i => (i.type || '').toLowerCase().includes(activeFilter));
         if (!items.length) return '';
         const viewAll = sec.view_all
-          ? `<a href="/browse" class="section-more">Lihat Semua</a>` : '';
+          ? `<a href="${escHtml(sec.view_all)}" class="section-more">Lihat Semua</a>` : '';
         return `<div class="section">
           <div class="section-header">
             <div class="section-title">${escHtml(sec.section)}</div>
@@ -484,7 +461,6 @@
         const res  = await fetch('/api/manga/home');
         const data = await res.json();
         if (!data.status) throw new Error(data.error || 'Gagal');
-
         const sections = data.result || [];
         const popularSection = sections.find(s => s.section.toLowerCase().includes('popular')) || sections[0];
         if (popularSection) renderHero(popularSection.items.filter(i => i.cover));
