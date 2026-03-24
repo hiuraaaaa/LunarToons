@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Browse — LunarToons</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0a0a0f;
+      --bg2:     #111118;
+      --bg3:     #1a1a26;
+      --bg4:     #22222e;
+      --accent:  #e85d04;
+      --accent2: #ff7b26;
+      --text:    #f0f0f0;
+      --text2:   #888899;
+      --text3:   #44445a;
+      --border:  rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.1);
+      --nav-h:   60px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; max-width: 480px;
+      margin: 0 auto; overflow-x: hidden;
+      padding-bottom: calc(var(--nav-h) + 20px);
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    ::-webkit-scrollbar { display: none; }
+    * { -webkit-user-select: none; user-select: none; }
+
+    /* TOPNAV */
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 18px; height: 56px;
+      background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; letter-spacing: 1px; color: var(--text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .logo-dot { color: var(--accent); }
+    .logo-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 8px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text3); margin-top: 2px;
+    }
+    .topnav-right { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); transition: all 0.15s;
+    }
+    .icon-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .icon-btn:active { opacity: 0.8; }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex; gap: 6px; overflow-x: auto;
+      padding: 10px 18px; scrollbar-width: none;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+    }
+    .filter-select {
+      flex-shrink: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 700;
+      padding: 6px 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      white-space: nowrap; transition: all 0.15s;
+      -webkit-appearance: none; appearance: none;
+      outline: none;
+    }
+    .filter-select.active { border-color: var(--accent); color: var(--accent); }
+
+    /* GENRE PANEL */
+    .genre-panel {
+      display: none; flex-wrap: wrap; gap: 6px;
+      padding: 12px 18px;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      max-height: 200px; overflow-y: auto;
+    }
+    .genre-panel.open { display: flex; }
+    .genre-chip {
+      padding: 5px 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px; font-weight: 700;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text3); cursor: pointer; transition: all 0.15s;
+    }
+    .genre-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* VIEW TOGGLE */
+    .view-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 18px;
+    }
+    .result-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 700; color: var(--text3);
+    }
+    .view-toggle { display: flex; gap: 4px; }
+    .view-btn {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text3); transition: all 0.15s;
+    }
+    .view-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* GRID VIEW */
+    .manga-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; padding: 0 18px;
+    }
+    .manga-grid.list-view { grid-template-columns: 1fr; gap: 1px; }
+    .manga-card {
+      position: relative; overflow: hidden;
+      cursor: pointer; background: var(--bg2);
+      animation: fadeUp 0.3s ease both;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .manga-card.list-item {
+      display: flex; gap: 12px; padding: 10px 14px;
+      align-items: center; border: 1px solid var(--border);
+    }
+    .manga-poster { position: relative; aspect-ratio: 2/3; overflow: hidden; }
+    .manga-card.list-item .manga-poster {
+      width: 50px; height: 70px; flex-shrink: 0; aspect-ratio: unset;
+    }
+    .manga-poster img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.3s ease; filter: brightness(0.9);
+    }
+    .manga-card:active .manga-poster img { transform: scale(1.05); filter: brightness(1); }
+    .manga-poster-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,15,1) 0%, rgba(10,10,15,0.5) 35%, transparent 60%);
+    }
+    .manga-card.list-item .manga-poster-overlay { display: none; }
+    .manga-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 7px 7px; }
+    .manga-card.list-item .manga-info { position: static; padding: 0; flex: 1; }
+    .manga-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px; font-weight: 700; color: #fff;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; line-height: 1.3;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    }
+    .manga-card.list-item .manga-title {
+      font-size: 12px; text-shadow: none; color: var(--text);
+      -webkit-line-clamp: 1;
+    }
+    .manga-chapter {
+      font-size: 9px; color: var(--accent2);
+      margin-top: 3px; font-family: 'Outfit', sans-serif; font-weight: 700;
+    }
+    .manga-card.list-item .manga-chapter { font-size: 10px; }
+    .manga-meta {
+      display: none; font-size: 10px; color: var(--text3);
+      font-family: 'Outfit', sans-serif; margin-top: 3px;
+    }
+    .manga-card.list-item .manga-meta { display: block; }
+    .manga-type-badge {
+      position: absolute; top: 0; left: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 7.5px; font-weight: 800;
+      padding: 3px 6px; color: white;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .manga-card.list-item .manga-type-badge { position: static; display: inline-block; margin-bottom: 4px; }
+    .manga-type-badge.manhwa { background: var(--accent); }
+    .manga-type-badge.manga  { background: #2563eb; }
+    .manga-type-badge.manhua { background: #7c3aed; }
+
+    /* LIST MODE */
+    .az-wrap { padding: 0 18px; }
+    .az-letter {
+      padding: 14px 0 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 1px; color: var(--accent);
+      border-bottom: 1px solid var(--border); margin-bottom: 6px;
+    }
+    .az-item {
+      padding: 10px 0;
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--text2); border-bottom: 1px solid var(--border);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    }
+    .az-item:active { color: var(--accent); }
+    .az-item svg { color: var(--text3); }
+    .az-alphabet {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      padding: 10px 18px; border-bottom: 1px solid var(--border);
+    }
+    .az-alpha-btn {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 800;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text3); cursor: pointer; transition: all 0.15s;
+    }
+    .az-alpha-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* SKELETON */
+    .skeleton-card { overflow: hidden; background: var(--bg2); }
+    .skeleton-poster { aspect-ratio: 2/3; background: var(--bg3); animation: pulse 1.5s ease-in-out infinite; }
+    .skeleton-line { height: 9px; margin: 7px 7px 4px; background: var(--bg3); animation: pulse 1.5s ease-in-out infinite; }
+    .skeleton-line.short { width: 55%; margin-bottom: 7px; }
+
+    /* LOAD MORE */
+    .load-more-wrap { padding: 16px 18px; }
+    .load-more-btn {
+      width: 100%; padding: 12px;
+      font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); transition: all 0.15s; cursor: pointer;
+    }
+    .load-more-btn:active { background: var(--bg4); color: var(--text); }
+    .load-more-btn:disabled { opacity: 0.4; pointer-events: none; }
+
+    /* EMPTY */
+    .empty-state {
+      display: flex; flex-direction: column;
+      align-items: center; padding: 48px 24px; gap: 10px;
+      text-align: center; color: var(--text3);
+    }
+    .empty-state p { font-size: 13px; font-family: 'Outfit', sans-serif; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; height: var(--nav-h);
+      background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border2);
+      display: flex; align-items: stretch; z-index: 100;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      color: var(--text3); cursor: pointer; transition: color 0.2s;
+      padding: 8px 0; position: relative;
+    }
+    .nav-item::after {
+      content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+      height: 2px; background: transparent; transition: background 0.2s;
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-item.active::after { background: var(--accent); }
+    .nav-item svg { width: 20px; height: 20px; }
+    .nav-item span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <div>
+      <div class="logo">LUNAR<span class="logo-dot">.</span>TOONS</div>
+      <div class="logo-sub">Browse</div>
+    </div>
+    <div class="topnav-right">
+      <button class="icon-btn" id="listmode-btn" onclick="toggleListMode()" title="A-Z Mode">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" id="filter-bar">
+    <select class="filter-select" id="filter-type" onchange="applyFilters()">
+      <option value="">Semua Type</option>
+      <option value="Manhwa">Manhwa</option>
+      <option value="Manga">Manga</option>
+      <option value="Manhua">Manhua</option>
+    </select>
+    <select class="filter-select" id="filter-status" onchange="applyFilters()">
+      <option value="">Semua Status</option>
+      <option value="ongoing">Ongoing</option>
+      <option value="completed">Completed</option>
+      <option value="hiatus">Hiatus</option>
+    </select>
+    <select class="filter-select" id="filter-order" onchange="applyFilters()">
+      <option value="update">Terbaru</option>
+      <option value="title">A-Z</option>
+      <option value="rating">Rating</option>
+      <option value="latest">Newest</option>
+      <option value="oldest">Oldest</option>
+    </select>
+    <button class="filter-select" id="genre-btn" onclick="toggleGenrePanel()">
+      Genre <span id="genre-count"></span> ▾
+    </button>
+  </div>
+
+  <!-- GENRE PANEL -->
+  <div class="genre-panel" id="genre-panel"></div>
+
+  <!-- CONTENT -->
+  <div id="list-mode-wrap" style="display:none">
+    <div class="az-alphabet" id="az-alphabet"></div>
+    <div class="az-wrap" id="az-list"></div>
+  </div>
+
+  <div id="grid-mode-wrap">
+    <div class="view-header">
+      <div class="result-count" id="result-count">Memuat...</div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="grid-btn" onclick="setView('grid')">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+        <button class="view-btn" id="list-btn" onclick="setView('list')">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="manga-grid" id="manga-grid"></div>
+    <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+      <button class="load-more-btn" id="load-more-btn" onclick="loadMore()">Muat Lebih Banyak</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='/'">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9,22 9,12 15,12 15,22"/>
+      </svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item active">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      <span>Browse</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='/search'">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span>Cari</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='/bookmarks'">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Simpan</span>
+    </div>
+  </nav>
+
+  <script>
+    function escHtml(str) {
+      return (str || '').toString()
+        .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── STATE ──
+    const urlParams   = new URLSearchParams(location.search);
+    let currentPage   = 1;
+    let totalPages    = 1;
+    let isLoading     = false;
+    let isListMode    = false;
+    let currentView   = 'grid';
+    let selectedGenres = [];
+    let allAzData     = [];
+    let currentAzLetter = '';
+
+    // init filters from URL
+    if (urlParams.get('type'))   document.getElementById('filter-type').value   = urlParams.get('type');
+    if (urlParams.get('status')) document.getElementById('filter-status').value = urlParams.get('status');
+    if (urlParams.get('order'))  document.getElementById('filter-order').value  = urlParams.get('order');
+
+    // ── HELPERS ──
+    function getTypeBadge(type) {
+      if (!type) return '';
+      const t = type.toLowerCase();
+      const cls = t.includes('manhwa') ? 'manhwa' : t.includes('manhua') ? 'manhua' : 'manga';
+      return `<span class="manga-type-badge ${cls}">${escHtml(type)}</span>`;
+    }
+
+    function renderCard(item) {
+      const cover = item.cover || 'https://placehold.co/200x300/111118/44445a?text=No+Cover';
+      const url   = encodeURIComponent(item.url || '');
+      const label = item.updated_at || item.chapter || '';
+      if (currentView === 'list') {
+        return `<div class="manga-card list-item" onclick="window.location.href='/detail?url=${url}'">
+          <div class="manga-poster">
+            <img src="${escHtml(cover)}" alt="${escHtml(item.title)}" loading="lazy"
+              onerror="this.src='https://placehold.co/200x300/111118/44445a?text=No+Cover'">
+          </div>
+          <div class="manga-info">
+            ${getTypeBadge(item.type)}
+            <div class="manga-title">${escHtml(item.title)}</div>
+            ${label ? `<div class="manga-chapter">${escHtml(label)}</div>` : ''}
+            ${item.rating ? `<div class="manga-meta">⭐ ${escHtml(item.rating)}</div>` : ''}
+          </div>
+        </div>`;
+      }
+      return `<div class="manga-card" onclick="window.location.href='/detail?url=${url}'">
+        <div class="manga-poster">
+          <img src="${escHtml(cover)}" alt="${escHtml(item.title)}" loading="lazy"
+            onerror="this.src='https://placehold.co/200x300/111118/44445a?text=No+Cover'">
+          <div class="manga-poster-overlay"></div>
+          ${getTypeBadge(item.type)}
+          <div class="manga-info">
+            <div class="manga-title">${escHtml(item.title)}</div>
+            ${label ? `<div class="manga-chapter">${escHtml(label)}</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function renderSkeleton(n = 9) {
+      return Array(n).fill(0).map(() => `
+        <div class="skeleton-card">
+          <div class="skeleton-poster"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>`).join('');
+    }
+
+    // ── VIEW TOGGLE ──
+    function setView(v) {
+      currentView = v;
+      const grid = document.getElementById('manga-grid');
+      document.getElementById('grid-btn').classList.toggle('active', v === 'grid');
+      document.getElementById('list-btn').classList.toggle('active', v === 'list');
+      grid.classList.toggle('list-view', v === 'list');
+      // re-render current items
+      const items = Array.from(grid.querySelectorAll('.manga-card'));
+      // just reload
+      loadList(true);
+    }
+
+    // ── GENRE PANEL ──
+    async function loadGenres() {
+      try {
+        const res  = await fetch('/api/manga/genres');
+        const data = await res.json();
+        if (!data.status) return;
+        const panel = document.getElementById('genre-panel');
+        panel.innerHTML = data.result.map(g =>
+          `<div class="genre-chip" data-id="${escHtml(g.id)}" onclick="toggleGenre(this,'${escHtml(g.id)}')">${escHtml(g.name)}</div>`
+        ).join('');
+      } catch(e) {}
+    }
+
+    function toggleGenre(el, id) {
+      el.classList.toggle('active');
+      if (selectedGenres.includes(id)) {
+        selectedGenres = selectedGenres.filter(g => g !== id);
+      } else {
+        selectedGenres.push(id);
+      }
+      const count = document.getElementById('genre-count');
+      count.textContent = selectedGenres.length ? `(${selectedGenres.length})` : '';
+      document.getElementById('genre-btn').classList.toggle('active', selectedGenres.length > 0);
+      applyFilters();
+    }
+
+    function toggleGenrePanel() {
+      document.getElementById('genre-panel').classList.toggle('open');
+    }
+
+    // ── FILTERS ──
+    function applyFilters() {
+      currentPage = 1;
+      loadList(true);
+    }
+
+    function getFilterParams() {
+      const type   = document.getElementById('filter-type').value;
+      const status = document.getElementById('filter-status').value;
+      const order  = document.getElementById('filter-order').value;
+      let params = `order=${order}`;
+      if (type)   params += `&type=${type}`;
+      if (status) params += `&status=${status}`;
+      selectedGenres.forEach(g => { params += `&genre=${g}`; });
+      return params;
+    }
+
+    // ── LOAD LIST ──
+    async function loadList(reset = false) {
+      if (isLoading) return;
+      isLoading = true;
+      const grid = document.getElementById('manga-grid');
+
+      if (reset) {
+        grid.innerHTML = renderSkeleton(9);
+        document.getElementById('result-count').textContent = 'Memuat...';
+        document.getElementById('load-more-wrap').style.display = 'none';
+      }
+
+      try {
+        const params = getFilterParams();
+        const res    = await fetch(`/api/manga/list?page=${currentPage}&${params}`);
+        const data   = await res.json();
+        if (!data.status) throw new Error(data.error);
+
+        totalPages = data.result.total_pages || 1;
+        const items = data.result.items || [];
+
+        if (reset) grid.innerHTML = '';
+        if (!items.length && reset) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+            <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <p>Tidak ada hasil ditemukan</p>
+          </div>`;
+        } else {
+          grid.innerHTML += items.map(renderCard).join('');
+        }
+
+        document.getElementById('result-count').textContent =
+          `Halaman ${currentPage} dari ${totalPages}`;
+
+        const loadMoreWrap = document.getElementById('load-more-wrap');
+        if (currentPage < totalPages) {
+          loadMoreWrap.style.display = 'block';
+          document.getElementById('load-more-btn').disabled = false;
+        } else {
+          loadMoreWrap.style.display = 'none';
+        }
+
+      } catch(e) {
+        if (reset) grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>Gagal memuat: ${escHtml(e.message)}</p></div>`;
+      }
+      isLoading = false;
+    }
+
+    function loadMore() {
+      currentPage++;
+      document.getElementById('load-more-btn').disabled = true;
+      loadList(false);
+    }
+
+    // ── LIST MODE (A-Z) ──
+    async function loadAzList(letter = '') {
+      const azList = document.getElementById('az-list');
+      azList.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--text3);font-size:12px">Memuat...</div>';
+      try {
+        const url  = letter ? `/api/manga/listmode?letter=${letter}` : '/api/manga/listmode';
+        const res  = await fetch(url);
+        const data = await res.json();
+        if (!data.status) throw new Error(data.error);
+
+        allAzData = data.result.data || [];
+
+        // alphabet nav
+        const alphaWrap = document.getElementById('az-alphabet');
+        const chars = [...new Set(allAzData.map(g => g.char))];
+        alphaWrap.innerHTML = chars.map(c =>
+          `<div class="az-alpha-btn ${c === letter ? 'active' : ''}" onclick="filterAz('${escHtml(c)}')">${escHtml(c)}</div>`
+        ).join('') + `<div class="az-alpha-btn ${!letter ? 'active' : ''}" onclick="filterAz('')">All</div>`;
+
+        renderAzList(allAzData);
+      } catch(e) {
+        azList.innerHTML = `<div style="padding:20px 0;text-align:center;color:var(--text3);font-size:12px">Gagal memuat</div>`;
+      }
+    }
+
+    function filterAz(letter) {
+      currentAzLetter = letter;
+      document.querySelectorAll('.az-alpha-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === (letter || 'All'));
+      });
+      if (letter) {
+        renderAzList(allAzData.filter(g => g.char === letter));
+      } else {
+        renderAzList(allAzData);
+      }
+    }
+
+    function renderAzList(data) {
+      const azList = document.getElementById('az-list');
+      if (!data.length) {
+        azList.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--text3);font-size:12px">Tidak ada data</div>';
+        return;
+      }
+      azList.innerHTML = data.map(group => `
+        <div class="az-letter">${escHtml(group.char)}</div>
+        ${group.items.map(item => `
+          <div class="az-item" onclick="window.location.href='/detail?url=${encodeURIComponent(item.url)}'">
+            <span>${escHtml(item.title)}</span>
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+          </div>`).join('')}
+      `).join('');
+    }
+
+    function toggleListMode() {
+      isListMode = !isListMode;
+      document.getElementById('listmode-btn').classList.toggle('active', isListMode);
+      document.getElementById('list-mode-wrap').style.display  = isListMode ? 'block' : 'none';
+      document.getElementById('grid-mode-wrap').style.display  = isListMode ? 'none'  : 'block';
+      document.getElementById('filter-bar').style.display      = isListMode ? 'none'  : 'flex';
+      document.getElementById('genre-panel').classList.remove('open');
+      if (isListMode && !allAzData.length) loadAzList();
+    }
+
+    // ── INIT ──
+    loadGenres();
+    loadList(true);
+  </script>
+</body>
+</html>
+
