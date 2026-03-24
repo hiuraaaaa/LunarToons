@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Baca — LunarToons</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #000;
+      --bg2:    #0d0d0d;
+      --bg3:    #1a1a1a;
+      --accent: #e85d04;
+      --text:   #f0f0f0;
+      --text2:  #888899;
+      --text3:  #44445a;
+      --border: rgba(255,255,255,0.06);
+      --nav-h:  56px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; max-width: 480px;
+      margin: 0 auto; overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    ::-webkit-scrollbar { display: none; }
+
+    /* TOPBAR */
+    .topbar {
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; height: var(--nav-h); z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 14px;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .topbar.hidden { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    .icon-btn {
+      width: 34px; height: 34px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .topbar-info { flex: 1; overflow: hidden; }
+    .topbar-title {
+      font-size: 12px; font-weight: 700; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .topbar-chapter { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+    /* PAGES */
+    .pages-wrap {
+      padding-top: var(--nav-h);
+      padding-bottom: 80px;
+    }
+    .page-img {
+      width: 100%; display: block;
+      background: var(--bg2);
+    }
+    .page-img.loading { min-height: 300px; animation: pulse 1.5s ease-in-out infinite; }
+
+    /* BOTTOMBAR */
+    .bottombar {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; z-index: 100;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .bottombar.hidden { transform: translateX(-50%) translateY(100%); opacity: 0; }
+
+    .progress-wrap { padding: 10px 14px 0; }
+    .progress-bar {
+      height: 2px; background: var(--bg3);
+      position: relative; cursor: pointer;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      transition: width 0.2s ease; pointer-events: none;
+    }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 9px; font-weight: 700; color: var(--text3);
+      margin-top: 4px;
+    }
+
+    .nav-btns {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px 14px;
+    }
+    .nav-btn {
+      flex: 1; padding: 11px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
+      text-transform: uppercase;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); transition: all 0.15s;
+    }
+    .nav-btn:active { background: #222; color: var(--text); }
+    .nav-btn.accent { background: var(--accent); border-color: var(--accent); color: white; }
+    .nav-btn.accent:active { background: #c44d00; }
+    .nav-btn:disabled, .nav-btn[disabled] { opacity: 0.3; pointer-events: none; }
+    .detail-btn {
+      width: 40px; flex-shrink: 0; padding: 11px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2);
+    }
+
+    /* EMPTY */
+    .empty {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 60vh; gap: 10px;
+      color: var(--text3); font-size: 13px; text-align: center;
+      padding: 24px;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar" id="topbar">
+    <button class="icon-btn" onclick="history.back()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="15,18 9,12 15,6"/>
+      </svg>
+    </button>
+    <div class="topbar-info">
+      <div class="topbar-title" id="topbar-title">Memuat...</div>
+      <div class="topbar-chapter" id="topbar-chapter"></div>
+    </div>
+    <button class="icon-btn" id="bookmark-btn">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages-wrap" id="pages-wrap">
+    <div class="empty">
+      <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>Memuat chapter...</p>
+    </div>
+  </div>
+
+  <!-- BOTTOMBAR -->
+  <div class="bottombar" id="bottombar">
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar" onclick="seekPage(event)">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-label">
+        <span id="page-current">0</span>
+        <span id="page-total">0</span>
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn" id="prev-btn" onclick="goPrev()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polyline points="15,18 9,12 15,6"/>
+        </svg>
+        Prev
+      </button>
+      <button class="detail-btn" id="detail-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </button>
+      <button class="nav-btn accent" id="next-btn" onclick="goNext()">
+        Next
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polyline points="9,18 15,12 9,6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const params     = new URLSearchParams(location.search);
+    const chapterUrl = params.get('url');
+    let data = null, barsVisible = true, hideTimer = null;
+
+    if (!chapterUrl) {
+      document.getElementById('pages-wrap').innerHTML =
+        '<div class="empty"><p>URL chapter tidak valid</p></div>';
+    } else {
+      loadChapter();
+    }
+
+    async function loadChapter() {
+      try {
+        const res  = await fetch(`/api/manga/chapter?url=${encodeURIComponent(chapterUrl)}`);
+        const json = await res.json();
+        if (!json.status) throw new Error(json.error || 'Gagal');
+        data = json.result;
+        render();
+      } catch(e) {
+        document.getElementById('pages-wrap').innerHTML =
+          `<div class="empty"><p>Gagal memuat: ${e.message}</p></div>`;
+      }
+    }
+
+    function render() {
+      if (!data) return;
+
+      document.getElementById('topbar-title').textContent  = data.title || 'Baca';
+      document.getElementById('topbar-chapter').textContent = `${data.total_pages} halaman`;
+      document.getElementById('page-total').textContent     = data.total_pages;
+      document.title = (data.title || 'Baca') + ' — LunarToons';
+
+      // detail btn
+      if (data.series_url) {
+        document.getElementById('detail-btn').onclick = () => {
+          window.location.href = `/detail?url=${encodeURIComponent(data.series_url)}`;
+        };
+      }
+
+      // prev/next
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      if (!data.prev) { prevBtn.disabled = true; prevBtn.style.opacity = '0.3'; }
+      else prevBtn.onclick = () => window.location.href = `/chapter?url=${encodeURIComponent(data.prev)}`;
+      if (!data.next) { nextBtn.disabled = true; nextBtn.style.opacity = '0.3'; nextBtn.classList.remove('accent'); }
+      else nextBtn.onclick = () => window.location.href = `/chapter?url=${encodeURIComponent(data.next)}`;
+
+      // images
+      const wrap = document.getElementById('pages-wrap');
+      if (!data.images?.length) {
+        wrap.innerHTML = '<div class="empty"><p>Tidak ada gambar ditemukan</p></div>';
+        return;
+      }
+
+      wrap.innerHTML = data.images.map((src, i) =>
+        `<img class="page-img loading" data-src="${src}" data-index="${i}"
+          alt="Page ${i+1}" loading="lazy"
+          onerror="this.style.display='none'">`
+      ).join('');
+
+      // lazy load
+      const imgs = wrap.querySelectorAll('img[data-src]');
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            img.onload = () => img.classList.remove('loading');
+            observer.unobserve(img);
+          }
+        });
+      }, { rootMargin: '200px' });
+      imgs.forEach(img => observer.observe(img));
+
+      // scroll progress
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const scrollY  = window.scrollY;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const pct = maxScroll > 0 ? Math.round((scrollY / maxScroll) * 100) : 0;
+      document.getElementById('progress-fill').style.width = pct + '%';
+
+      // current page estimate
+      if (data?.total_pages) {
+        const cur = Math.max(1, Math.ceil((pct / 100) * data.total_pages));
+        document.getElementById('page-current').textContent = cur;
+      }
+    }
+
+    function seekPage(e) {
+      const bar  = e.currentTarget;
+      const pct  = e.offsetX / bar.offsetWidth;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: pct * maxScroll, behavior: 'smooth' });
+    }
+
+    function goPrev() {
+      if (data?.prev) window.location.href = `/chapter?url=${encodeURIComponent(data.prev)}`;
+    }
+    function goNext() {
+      if (data?.next) window.location.href = `/chapter?url=${encodeURIComponent(data.next)}`;
+    }
+
+    // tap to show/hide bars
+    document.addEventListener('click', e => {
+      if (e.target.closest('.topbar') || e.target.closest('.bottombar')) return;
+      toggleBars();
+    });
+
+    function toggleBars() {
+      barsVisible = !barsVisible;
+      document.getElementById('topbar').classList.toggle('hidden', !barsVisible);
+      document.getElementById('bottombar').classList.toggle('hidden', !barsVisible);
+    }
+  </script>
+</body>
+</html>
