@@ -27,6 +27,7 @@ app.get('/search',    (req, res) => res.sendFile(pub('search.html')));
 app.get('/detail',    (req, res) => res.sendFile(pub('detail.html')));
 app.get('/chapter',      (req, res) => res.sendFile(pub('chapter.html')));
 app.get('/bookmarks', (req, res) => res.sendFile(pub('bookmarks.html')));
+app.get('/browse', (req, res) => res.sendFile('browse.html', { root: 'public' }))
 
 // ── 404 ──
 app.use((req, res) => {
