@@ -12,17 +12,23 @@ async function fetchPage(url) {
     const res = await axios.get(scraperUrl, { timeout: 60000 });
     return cheerio.load(res.data);
 }
-function parseBsx($, container) {
+
+function parseBsxEl($, el) {
+    const a       = $(el).find('a').first();
+    const url     = a.attr('href') || null;
+    const title   = a.attr('title') || $(el).find('.tt').text().trim() || null;
+    const cover   = $(el).find('img').first().attr('src') || null;
+    const type    = $(el).find('[class^="type"]').text().trim() || null;
+    const status  = $(el).find('[class^="status"]').text().trim() || null;
+    const chapter = $(el).find('.epxs').text().trim() || null;
+    return (url && title) ? { title, url, cover, type, status, chapter } : null;
+}
+
+function parseBsx($, selector) {
     const items = [];
-    $(container).find('.bsx').each((_, el) => {
-        const a       = $(el).find('a').first();
-        const url     = a.attr('href') || null;
-        const title   = a.attr('title') || $(el).find('.tt').text().trim() || null;
-        const cover   = $(el).find('img').first().attr('src') || null;
-        const type    = $(el).find('[class^="type"]').text().trim() || null;
-        const status  = $(el).find('[class^="status"]').text().trim() || null;
-        const chapter = $(el).find('.epxs').text().trim() || null;
-        if (url && title) items.push({ title, url, cover, type, status, chapter });
+    $(selector).find('.bsx').each((_, el) => {
+        const item = parseBsxEl($, el);
+        if (item) items.push(item);
     });
     return items;
 }
@@ -45,7 +51,11 @@ router.get('/home', async (req, res) => {
             const title    = $(box).find('.releases h3').first().text().trim();
             if (!title) return;
             const view_all = $(box).find('.releases .vl').attr('href') || null;
-            const items    = parseBsx($, box);
+            const items    = [];
+            $(box).find('.bsx').each((_, el) => {
+                const item = parseBsxEl($, el);
+                if (item) items.push(item);
+            });
             if (items.length) sections.push({ section: title, view_all, items });
         });
         res.json({ status: true, result: sections });
