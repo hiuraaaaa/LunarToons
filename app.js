@@ -25,7 +25,7 @@ app.get('/',          (req, res) => res.sendFile(pub('index.html')));
 app.get('/list',      (req, res) => res.sendFile(pub('list.html')));
 app.get('/search',    (req, res) => res.sendFile(pub('search.html')));
 app.get('/detail',    (req, res) => res.sendFile(pub('detail.html')));
-app.get('/read',      (req, res) => res.sendFile(pub('read.html')));
+app.get('/chapter',      (req, res) => res.sendFile(pub('chapter.html')));
 app.get('/bookmarks', (req, res) => res.sendFile(pub('bookmarks.html')));
 
 // ── 404 ──
