@@ -42,6 +42,22 @@ function getPagination($, page) {
     return { page, total_pages: max, next_page: page < max ? page + 1 : null, prev_page: page > 1 ? page - 1 : null };
 }
 
+// ── DEBUG ──
+router.get('/debug', async (req, res) => {
+    try {
+        const $ = await fetchPage(BASE + '/');
+        const debug = [];
+        $('.bixbox').each((_, box) => {
+            debug.push({
+                title: $(box).find('.releases h3').first().text().trim(),
+                bsx_count: $(box).find('.bsx').length,
+                html_snippet: $(box).html()?.substring(0, 300)
+            });
+        });
+        res.json({ bixbox_total: $('.bixbox').length, bsx_total: $('.bsx').length, debug });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── HOME ──
 router.get('/home', async (req, res) => {
     try {
